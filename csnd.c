@@ -315,7 +315,15 @@ static emacs_value csndSetOutput (emacs_env *env, ptrdiff_t nargs, emacs_value a
   return 0;
 }
 
+/* Channels, Control and Events */
 
+static emacs_value csndGetChannelPtr (emacs_env *env, ptrdiff_t nargs, emacs_value args[], void *data)
+{
+  CSOUND *csound = env->get_user_ptr (env, args[0]);
+  const char* csnd_input = copy_string(env,args[1]);
+  csoundSetInput(csound, csnd_input);
+  return 0;
+}
 
 
 /* static bool get_global (emacs_env *env, emacs_value *valptr, const char *name) */
@@ -350,6 +358,16 @@ static void bind_function (emacs_env *env, const char *name, emacs_value Sfun)
   env->funcall (env, Qfset, 2, args);
 }
 
+static void bind_constant (emacs_env *env, const char *name, emacs_value Sfun)
+{
+
+  emacs_value Qfset = env->intern (env, "defconst");
+  emacs_value Qsym = env->intern (env, name);
+
+  /* emacs_value args[] = { Qsym, Sfun }; */
+
+  /* env->funcall (env, Qfset, 2, args); */
+}
 
 static void provide (emacs_env *env, const char *feature)
 {

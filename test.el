@@ -18,3 +18,6 @@
 
 (let* ((a (csoundCreate))
        (b (csoundDestroy a))))
+
+
+(csoundGetOutputName csound-instance)
