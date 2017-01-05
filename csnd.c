@@ -259,8 +259,11 @@ static emacs_value csndSetOption (emacs_env *env, ptrdiff_t nargs, emacs_value a
 static emacs_value csndGetOutputName (emacs_env *env, ptrdiff_t nargs, emacs_value args[], void *data)
 {
   CSOUND *csound = env->get_user_ptr (env, args[0]);
-  const char* result = csoundGetOutputName(csound);
-  return env->make_string(env,result,sizeof(result));
+  const char* result;
+  result = csoundGetOutputName(csound); 
+  if (result == 0)
+    {return 0;} else
+    {return env->make_string(env,result,strlen(result));}
 }
 
 /* IGNORED csoundSetFileOpenCallback */
@@ -320,10 +323,57 @@ static emacs_value csndSetOutput (emacs_env *env, ptrdiff_t nargs, emacs_value a
 static emacs_value csndGetChannelPtr (emacs_env *env, ptrdiff_t nargs, emacs_value args[], void *data)
 {
   CSOUND *csound = env->get_user_ptr (env, args[0]);
-  const char* csnd_input = copy_string(env,args[1]);
-  csoundSetInput(csound, csnd_input);
+  MYFLT *chn =  env->get_user_ptr (env, args[1]);
+  const char* chn_name = copy_string(env,args[2]);
+  int chn_type = env->extract_integer (env, args[3]);
+  int result = csoundGetChannelPtr(csound, &chn, chn_name, chn_type);
+
+  return env->make_integer(env,result);
+}
+
+static emacs_value csndGetControlChannel (emacs_env *env, ptrdiff_t nargs, emacs_value args[], void *data)
+{
+  CSOUND *csound = env->get_user_ptr (env, args[0]);
+  const char* chn_name = copy_string(env,args[1]);
+  MYFLT result = csoundGetControlChannel(csound, chn_name, NULL);
+
+  return env->make_float(env,result);
+}
+
+static emacs_value csndSetControlChannel (emacs_env *env, ptrdiff_t nargs, emacs_value args[], void *data)
+{
+  CSOUND *csound = env->get_user_ptr (env, args[0]);
+  const char* chn_name = copy_string(env,args[1]);
+  MYFLT val = env->extract_float (env, args[2]);
+  csoundSetControlChannel(csound, chn_name, val);
   return 0;
 }
+
+
+
+static emacs_value csndGetStringChannel (emacs_env *env, ptrdiff_t nargs, emacs_value args[], void *data)
+{
+  CSOUND *csound = env->get_user_ptr (env, args[0]);
+  const char* chn_name = copy_string(env,args[1]);
+  int str_size = csoundGetChannelDatasize(csound, chn_name);
+  char *out_string;
+  out_string = (char *) malloc(str_size);
+
+  csoundGetStringChannel(csound, chn_name, out_string);
+
+  return env->make_string(env,out_string, strlen(out_string));
+}
+
+static emacs_value csndSetStringChannel (emacs_env *env, ptrdiff_t nargs, emacs_value args[], void *data)
+{
+  CSOUND *csound = env->get_user_ptr (env, args[0]);
+  const char* chn_name = copy_string(env,args[1]);
+  char* string_val = copy_string(env,args[2]);
+
+  csoundSetStringChannel(csound, chn_name, string_val);
+  return 0;
+}
+
 
 
 /* static bool get_global (emacs_env *env, emacs_value *valptr, const char *name) */
@@ -342,7 +392,7 @@ static emacs_value csndGetChannelPtr (emacs_env *env, ptrdiff_t nargs, emacs_val
 
 
 
-static void bind_function (emacs_env *env, const char *name, emacs_value Sfun)
+  static void bind_function (emacs_env *env, const char *name, emacs_value Sfun)
 {
   /* Set the function cell of the symbol named NAME to SFUN using
      the 'fset' function.  */
@@ -358,15 +408,15 @@ static void bind_function (emacs_env *env, const char *name, emacs_value Sfun)
   env->funcall (env, Qfset, 2, args);
 }
 
-static void bind_constant (emacs_env *env, const char *name, emacs_value Sfun)
+static void bind_constant (emacs_env *env, const char *name, int constant)
 {
-
-  emacs_value Qfset = env->intern (env, "defconst");
+  emacs_value Qset = env->intern (env, "set");
   emacs_value Qsym = env->intern (env, name);
+  emacs_value Qint = env->make_integer (env, constant);
+  emacs_value args[] = { Qsym, Qint};
 
-  /* emacs_value args[] = { Qsym, Sfun }; */
-
-  /* env->funcall (env, Qfset, 2, args); */
+  env->funcall (env, Qset, 2, args);
+ 
 }
 
 static void provide (emacs_env *env, const char *feature)
@@ -395,6 +445,22 @@ int emacs_module_init (struct emacs_runtime *ert)
   /* 					NULL          /\* user pointer of your choice (data param in Fmymod_test) *\/ */
   /* 					); */
 
+  /* CONSTANTS */
+  bind_constant(env, "CSOUND_CONTROL_CHANNEL", 1);
+  bind_constant(env, "CSOUND_AUDIO_CHANNEL", 2);
+  bind_constant(env, "CSOUND_STRING_CHANNEL", 3);
+  bind_constant(env, "CSOUND_PVS_CHANNEL", 4);
+  bind_constant(env, "CSOUND_VAR_CHANNEL", 5);
+  bind_constant(env, "CSOUND_CHANNEL_TYPE_MASK", 15);
+  bind_constant(env, "CSOUND_INPUT_CHANNEL", 16);
+  bind_constant(env, "CSOUND_OUTPUT_CHANNEL", 32);
+
+
+  bind_constant(env, "CSOUND_CONTROL_CHANNEL_NO_HINTS", 0);
+  bind_constant(env, "CSOUND_CONTROL_CHANNEL_INT", 1);
+  bind_constant(env, "CSOUND_CONTROL_CHANNEL_LIN", 2);
+  bind_constant(env, "CSOUND_CONTROL_CHANNEL_EXP", 3);
+  
   /* INSTANTIATION */ 
   emacs_value CsoundCreate = env->make_function (env, 0,0, csndCreate, "Creates an instance of Csound.", NULL);
   emacs_value CsoundDestroy = env->make_function (env, 1,1, csndDestroy, "Destroys an instance of Csound.", NULL);
@@ -484,6 +550,21 @@ int emacs_module_init (struct emacs_runtime *ert)
   bind_function (env, "csoundSetMIDIInput", CsoundSetMIDIInput);
   bind_function (env, "csoundSetMIDIOutput", CsoundSetMIDIOutput);
   bind_function (env, "csoundSetOutput", CsoundSetOutput);
+
+  /* Channels, Control and Events */
+  emacs_value CsoundGetChannelPtr = env->make_function (env, 4,4, csndGetChannelPtr, "Stores a pointer to the specified channel of the bus in *p, creating the channel first if it does not exist yet.", NULL);
+  emacs_value CsoundGetControlChannel = env->make_function (env, 2,2, csndGetControlChannel, "retrieves the value of control channel identified by name.", NULL);
+  emacs_value CsoundSetControlChannel = env->make_function (env, 3,3, csndSetControlChannel, "sets the value of control channel identified by *name", NULL);
+  emacs_value CsoundGetStringChannel = env->make_function (env, 2,2, csndGetStringChannel, "retrieves the string channel identified by name", NULL);
+  emacs_value CsoundSetStringChannel = env->make_function (env, 3,3, csndSetStringChannel, "Sets the string channel", NULL);
+
+
+  bind_function (env, "csoundGetChannelPtr", CsoundGetChannelPtr);
+  bind_function (env, "csoundGetControlChannel", CsoundGetControlChannel);
+  bind_function (env, "csoundSetControlChannel", CsoundSetControlChannel);
+  bind_function (env, "csoundGetStringChannel", CsoundGetStringChannel);
+  bind_function (env, "csoundSetStringChannel", CsoundSetStringChannel);
+
   
   provide (env, "csnd");
 

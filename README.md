@@ -64,7 +64,7 @@ https://csound.github.io/docs/api/group__FILEIO.html
 
 | API function      | Status        | Parameters |  Comment |
 | ----------------- |:-------------:|:---------- |:-------- |
-| csoundGetOutputName|available*    | csnd       | Crashes emacs instead of returning nil|
+| csoundGetOutputName|available    | csnd       | |
 | csoundSetOutput   | available | csnd,str(filename),str(filetype),str(fileformat)||
 |csoundSetInput      | available     | csnd,str (input name) | |
 |csoundSetMIDIInput  |available   | csnd, str(midiinputname)| |
@@ -78,19 +78,19 @@ https://csound.github.io/docs/api/group__CONTROLEVENTS.html
 
 | API function      | Status        | Parameters |  Comment |
 | ----------------- |:-------------:|:---------- |:-------- |
-| csoundGetChannelPtr
-| csoundListChannels
-| csoundDeleteChannelList
-| csoundSetControlChannelHints
-| csoundGetControlChannelHints
-| csoundGetChannelLock
-| csoundGetControlChannel
-| csoundSetControlChannel
-| csoundGetAudioChannel
-| csoundSetAudioChannel
-| csoundGetStringChannel
-| csoundSetStringChannel
-| csoundGetChannelDatasize
+| csoundGetChannelPtr | available | csnd,chn,str(name),int(type)||
+| csoundListChannels | missing | | |
+| csoundDeleteChannelList | missing | | |
+| csoundSetControlChannelHints | missing | | |
+| csoundGetControlChannelHints | missing | | |
+| csoundGetChannelLock | missing | | |
+| csoundGetControlChannel | available | csnd, str(name)| |
+| csoundSetControlChannel | available | csnd, str(name),float(value)||
+| csoundGetAudioChannel | missing | | |
+| csoundSetAudioChannel | missing | | |
+| csoundGetStringChannel |  available | csnd, str(name)| |
+| csoundSetStringChannel | available | csnd, str(name), str(value)| |
+| csoundGetChannelDatasize | missing | | |
 | csoundSetInputChannelCallback
 | csoundSetOutputChannelCallback
 | csoundSetPvsChannel
@@ -103,3 +103,22 @@ https://csound.github.io/docs/api/group__CONTROLEVENTS.html
 | csoundKeyPress
 | csoundRegisterKeyboardCallback
 | csoundRemoveKeyboardCallback
+
+
+## Constants
+Defined in csound.h
+
+| Symbol                 | Int value  |
+| ---------------------- |:----------:|
+| CSOUND_CONTROL_CHANNEL |1      |
+| CSOUND_AUDIO_CHANNEL   | 2      |
+| CSOUND_STRING_CHANNEL  |      3|
+| CSOUND_PVS_CHANNEL     |   4|
+| CSOUND_VAR_CHANNEL     |   5|
+| CSOUND_CHANNEL_TYPE_MASK |    15|
+| CSOUND_INPUT_CHANNEL  |       16|
+| CSOUND_OUTPUT_CHANNEL |       32|
+| CSOUND_CONTROL_CHANNEL_NO_HINTS | 0 |
+| CSOUND_CONTROL_CHANNEL_INT | 1     |
+| CSOUND_CONTROL_CHANNEL_LIN | 2     |
+| CSOUND_CONTROL_CHANNEL_EXP | 3     |
