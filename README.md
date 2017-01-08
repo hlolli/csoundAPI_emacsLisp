@@ -105,18 +105,42 @@ https://csound.github.io/docs/api/group__CONTROLEVENTS.html
 | csoundRemoveKeyboardCallback
 
 ## Score Handling
+https://csound.github.io/docs/api/group__SCOREHANDLING.html
 | API function      | Status        | Parameters |  Comment |
 | ----------------- |:-------------:|:---------- |:-------- |
 | csoundReadScore | available | csnd, str(score) | |
-| csoundGetScoreTime | | | |
-| csoundIsScorePending | | | |
-| csoundSetScorePending | | | |
-| csoundGetScoreOffsetSeconds  | | | |
-| csoundSetScoreOffsetSeconds | | | |
-| csoundRewindScore | | | |
-| csoundSetCscoreCallback | | | |
-| csoundScoreSort | | |  |
-| csoundScoreExtract | | | |
+| csoundGetScoreTime | available | csnd | |
+| csoundIsScorePending | availavle | csnd | |
+| csoundSetScorePending | available | csnd, int(pending) | |
+| csoundGetScoreOffsetSeconds | available | csnd | |
+| csoundSetScoreOffsetSeconds | available | csnd, float(time) | |
+| csoundRewindScore | available | csnd | |
+| csoundSetCscoreCallback | missing | | |
+| csoundScoreSort | missing | |  |
+| csoundScoreExtract | missing | | |
+
+## Threading and concurrency
+https://csound.github.io/docs/api/group__THREADING.html
+| API function      | Status        | Parameters |  Comment |
+| ----------------- |:-------------:|:---------- |:-------- |
+| csoundSetYieldCallback | | | |
+| csoundCreateThread | | | |
+| csoundGetCurrentThreadId | | | |
+| csoundJoinThread | | | |
+| csoundCreateThreadLock | | | |
+| csoundWaitThreadLock | | | |
+| csoundWaitThreadLockNoTimeout | | | |
+| csoundNotifyThreadLock | | | |
+| csoundDestroyThreadLock | | | |
+| csoundCreateMutex | | | |
+| csoundLockMutex | | | |
+| csoundLockMutexNoWait | | | |
+| csoundUnlockMutex | | | |
+| csoundDestroyMutex | | | |
+| csoundCreateBarrier | | | |
+| csoundDestroyBarrier | | | |
+| csoundWaitBarrier | | | |
+| csoundSleep | | | |
 
 ## Constants
 Defined in csound.h

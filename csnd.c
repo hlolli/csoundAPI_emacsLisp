@@ -396,21 +396,49 @@ static emacs_value csndReadScore (emacs_env *env, ptrdiff_t nargs, emacs_value a
   return env->make_integer(env,result);
 }
 
+static emacs_value csndGetScoreTime (emacs_env *env, ptrdiff_t nargs, emacs_value args[], void *data)
+{
+  CSOUND *csound = env->get_user_ptr (env, args[0]);
+  double result = csoundGetScoreTime(csound);
+  return env->make_float(env, result);
+}
 
-/* static bool get_global (emacs_env *env, emacs_value *valptr, const char *name) */
-/* { */
-/*   *valptr = env->intern (env, name); */
-/*   if (env->non_local_exit_check (env)) */
-/*     return false; */
-/*   *valptr = env->make_global_ref (env, *valptr); */
-/*   return !env->non_local_exit_check (env); */
-/* } */
+static emacs_value csndIsScorePending (emacs_env *env, ptrdiff_t nargs, emacs_value args[], void *data)
+{
+  CSOUND *csound = env->get_user_ptr (env, args[0]);
+  double result = csoundIsScorePending(csound);
+  return env->make_integer(env, result);
+}
 
-/* static emacs_value Fmymod_test (emacs_env *env, int nargs, emacs_value args[], void *data) */
-/* { */
-/*   return env->make_integer (env, 42); */
-/* } */
+static emacs_value csndSetScorePending (emacs_env *env, ptrdiff_t nargs, emacs_value args[], void *data)
+{
+  CSOUND *csound = env->get_user_ptr (env, args[0]);
+  int pending = env->extract_integer (env, args[1]);
+  csoundSetScorePending(csound, pending);
+  return 0;
+}
 
+static emacs_value csndGetScoreOffsetSeconds (emacs_env *env, ptrdiff_t nargs, emacs_value args[], void *data)
+{
+  CSOUND *csound = env->get_user_ptr (env, args[0]);
+  MYFLT result = csoundGetScoreOffsetSeconds(csound);
+  return env->make_float(env, result);
+}
+
+static emacs_value csndSetScoreOffsetSeconds (emacs_env *env, ptrdiff_t nargs, emacs_value args[], void *data)
+{
+  CSOUND *csound = env->get_user_ptr (env, args[0]);
+  MYFLT time = env->extract_float (env, args[1]);
+  csoundSetScoreOffsetSeconds(csound, time);
+  return 0;
+}
+
+static emacs_value csndRewindScore (emacs_env *env, ptrdiff_t nargs, emacs_value args[], void *data)
+{
+  CSOUND *csound = env->get_user_ptr (env, args[0]);
+  csoundRewindScore(csound);
+  return 0;
+}
 
 
 static void bind_function (emacs_env *env, const char *name, emacs_value Sfun)
@@ -591,12 +619,23 @@ int emacs_module_init (struct emacs_runtime *ert)
   bind_function (env, "csoundInputMessage", CsoundInputMessage);
 
   /* Score Handling */
-  emacs_value CsoundReadScore = env->make_function (env, 2, 2,   csndReadScore, "Read, preprocess, and load a score from an ASCII string It can be called repeatedly, with the new score events being added to the currently scheduled ones.", NULL);
+  emacs_value CsoundReadScore = env->make_function (env, 2, 2, csndReadScore, "Read, preprocess, and load a score from an ASCII string It can be called repeatedly, with the new score events being added to the currently scheduled ones.", NULL);
+  emacs_value CsoundGetScoreTime = env->make_function (env, 1, 1, csndGetScoreTime, "Returns the current score time in seconds since the beginning of performance.", NULL);
+  emacs_value CsoundIsScorePending = env->make_function (env, 1, 1, csndIsScorePending, "Sets whether Csound score events are performed or not, independently of real-time MIDI events", NULL);
+  emacs_value CsoundSetScorePending = env->make_function (env, 2, 2, csndSetScorePending, "Sets whether Csound score events are performed or not (real-time events will continue to be performed).", NULL);
+  emacs_value CsoundGetScoreOffsetSeconds = env->make_function (env, 1, 1, csndGetScoreOffsetSeconds, "Returns the score time beginning at which score events will actually immediately be performed.", NULL);
+  emacs_value CsoundSetScoreOffsetSeconds = env->make_function (env, 2, 2, csndSetScoreOffsetSeconds, "Csound score events prior to the specified time are not performed, and performance begins immediately at the specified time (real-time events will continue to be performed as they are received).", NULL);
+  emacs_value CsoundRewindScore = env->make_function (env, 1, 1, csndRewindScore, "Rewinds a compiled Csound score to the time specified with (csoundSetScoreOffsetSeconds).", NULL);  
 
   bind_function (env, "csoundReadScore", CsoundReadScore);
+  bind_function (env, "csoundGetScoreTime", CsoundGetScoreTime);
+  bind_function (env, "csoundIsScorePending", CsoundIsScorePending);
+  bind_function (env, "csoundSetScorePending", CsoundSetScorePending);
+  bind_function (env, "csoundGetScoreOffsetSeconds", CsoundGetScoreOffsetSeconds);
+  bind_function (env, "csoundSetScoreOffsetSeconds", CsoundSetScoreOffsetSeconds);
+  bind_function (env, "csoundRewindScore", CsoundRewindScore);
   
   provide (env, "csnd");
-
 
   return 0;
 }
