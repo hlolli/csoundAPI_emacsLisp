@@ -106,6 +106,7 @@ https://csound.github.io/docs/api/group__CONTROLEVENTS.html
 
 ## Score Handling
 https://csound.github.io/docs/api/group__SCOREHANDLING.html
+
 | API function      | Status        | Parameters |  Comment |
 | ----------------- |:-------------:|:---------- |:-------- |
 | csoundReadScore | available | csnd, str(score) | |
@@ -121,6 +122,7 @@ https://csound.github.io/docs/api/group__SCOREHANDLING.html
 
 ## Threading and concurrency
 https://csound.github.io/docs/api/group__THREADING.html
+
 | API function      | Status        | Parameters |  Comment |
 | ----------------- |:-------------:|:---------- |:-------- |
 | csoundSetYieldCallback | | | |
