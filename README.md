@@ -91,19 +91,32 @@ https://csound.github.io/docs/api/group__CONTROLEVENTS.html
 | csoundGetStringChannel |  available | csnd, str(name)| |
 | csoundSetStringChannel | available | csnd, str(name), str(value)| |
 | csoundGetChannelDatasize | missing | | |
-| csoundSetInputChannelCallback
-| csoundSetOutputChannelCallback
-| csoundSetPvsChannel
-| csoundGetPvsChannel
-| csoundScoreEvent
-| csoundScoreEventAbsolute
-| csoundInputMessage
+| csoundSetInputChannelCallback | missing | | |
+| csoundSetOutputChannelCallback | missing | | |
+| csoundSetPvsChannel | missing | | |
+| csoundGetPvsChannel | missing | | |
+| csoundScoreEvent | missing | | (todo) |
+| csoundScoreEventAbsolute | missing | | (todo) |
+| csoundInputMessage | available | csnd, str(message) | |
 | csoundKillInstance
 | csoundRegisterSenseEventCallback
 | csoundKeyPress
 | csoundRegisterKeyboardCallback
 | csoundRemoveKeyboardCallback
 
+## Score Handling
+| API function      | Status        | Parameters |  Comment |
+| ----------------- |:-------------:|:---------- |:-------- |
+| csoundReadScore | available | csnd, str(score) | |
+| csoundGetScoreTime | | | |
+| csoundIsScorePending | | | |
+| csoundSetScorePending | | | |
+| csoundGetScoreOffsetSeconds  | | | |
+| csoundSetScoreOffsetSeconds | | | |
+| csoundRewindScore | | | |
+| csoundSetCscoreCallback | | | |
+| csoundScoreSort | | |  |
+| csoundScoreExtract | | | |
 
 ## Constants
 Defined in csound.h

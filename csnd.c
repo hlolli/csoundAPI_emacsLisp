@@ -121,6 +121,7 @@ static emacs_value csndEvalCode (emacs_env *env, ptrdiff_t nargs, emacs_value ar
 {
   CSOUND *csound = env->get_user_ptr (env, args[0]);
   const char* code_snippet = copy_string(env,args[1]);
+  printf("code snippet: %s \n", code_snippet);
   MYFLT result = csoundEvalCode(csound, code_snippet);
   return env->make_integer(env,result);
 }
@@ -374,6 +375,26 @@ static emacs_value csndSetStringChannel (emacs_env *env, ptrdiff_t nargs, emacs_
   return 0;
 }
 
+/* TODO: csoundScoreEvent csoundScoreEventAbsolute */
+
+static emacs_value csndInputMessage (emacs_env *env, ptrdiff_t nargs, emacs_value args[], void *data)
+{
+  CSOUND *csound = env->get_user_ptr (env, args[0]);
+  const char* message = copy_string(env,args[1]);
+
+  csoundInputMessage(csound, message);
+  return 0;
+}
+
+/* Score Handling */
+
+static emacs_value csndReadScore (emacs_env *env, ptrdiff_t nargs, emacs_value args[], void *data)
+{
+  CSOUND *csound = env->get_user_ptr (env, args[0]);
+  const char* score = copy_string(env,args[1]);
+  int result = csoundReadScore(csound, score);
+  return env->make_integer(env,result);
+}
 
 
 /* static bool get_global (emacs_env *env, emacs_value *valptr, const char *name) */
@@ -392,7 +413,7 @@ static emacs_value csndSetStringChannel (emacs_env *env, ptrdiff_t nargs, emacs_
 
 
 
-  static void bind_function (emacs_env *env, const char *name, emacs_value Sfun)
+static void bind_function (emacs_env *env, const char *name, emacs_value Sfun)
 {
   /* Set the function cell of the symbol named NAME to SFUN using
      the 'fset' function.  */
@@ -455,12 +476,13 @@ int emacs_module_init (struct emacs_runtime *ert)
   bind_constant(env, "CSOUND_INPUT_CHANNEL", 16);
   bind_constant(env, "CSOUND_OUTPUT_CHANNEL", 32);
 
-
   bind_constant(env, "CSOUND_CONTROL_CHANNEL_NO_HINTS", 0);
   bind_constant(env, "CSOUND_CONTROL_CHANNEL_INT", 1);
   bind_constant(env, "CSOUND_CONTROL_CHANNEL_LIN", 2);
   bind_constant(env, "CSOUND_CONTROL_CHANNEL_EXP", 3);
   
+  bind_constant(env, "CSOUNDINIT_NO_SIGNAL_HANDLER", 1);
+  bind_constant(env, "CSOUNDINIT_NO_ATEXIT", 2);
   /* INSTANTIATION */ 
   emacs_value CsoundCreate = env->make_function (env, 0,0, csndCreate, "Creates an instance of Csound.", NULL);
   emacs_value CsoundDestroy = env->make_function (env, 1,1, csndDestroy, "Destroys an instance of Csound.", NULL);
@@ -557,14 +579,21 @@ int emacs_module_init (struct emacs_runtime *ert)
   emacs_value CsoundSetControlChannel = env->make_function (env, 3,3, csndSetControlChannel, "sets the value of control channel identified by *name", NULL);
   emacs_value CsoundGetStringChannel = env->make_function (env, 2,2, csndGetStringChannel, "retrieves the string channel identified by name", NULL);
   emacs_value CsoundSetStringChannel = env->make_function (env, 3,3, csndSetStringChannel, "Sets the string channel", NULL);
-
+  /* emacs_value CsoundScoreEvent = env->make_function (env, 3, 1024,   csndScoreEvent, "Send a new score event.", NULL); */
+  emacs_value CsoundInputMessage = env->make_function (env, 2, 2,   csndInputMessage, "Input a string, used for line events.", NULL);
 
   bind_function (env, "csoundGetChannelPtr", CsoundGetChannelPtr);
   bind_function (env, "csoundGetControlChannel", CsoundGetControlChannel);
   bind_function (env, "csoundSetControlChannel", CsoundSetControlChannel);
   bind_function (env, "csoundGetStringChannel", CsoundGetStringChannel);
   bind_function (env, "csoundSetStringChannel", CsoundSetStringChannel);
+  /* bind_function (env, "csoundScoreEvent", CsoundScoreEvent); */
+  bind_function (env, "csoundInputMessage", CsoundInputMessage);
 
+  /* Score Handling */
+  emacs_value CsoundReadScore = env->make_function (env, 2, 2,   csndReadScore, "Read, preprocess, and load a score from an ASCII string It can be called repeatedly, with the new score events being added to the currently scheduled ones.", NULL);
+
+  bind_function (env, "csoundReadScore", CsoundReadScore);
   
   provide (env, "csnd");
 

@@ -24,3 +24,5 @@ CSOUND_CONTROL_CHANNEL
 (csoundCleanup csound-instance)
 
 (csoundDestroy csound-instance)
+
+(csoundScoreEvent csound-instance "iaaaaaaaaaaaaaaaaaaaaaaaaaa" 2 "a")
