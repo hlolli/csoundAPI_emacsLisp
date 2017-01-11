@@ -511,6 +511,7 @@ int emacs_module_init (struct emacs_runtime *ert)
   
   bind_constant(env, "CSOUNDINIT_NO_SIGNAL_HANDLER", 1);
   bind_constant(env, "CSOUNDINIT_NO_ATEXIT", 2);
+  
   /* INSTANTIATION */ 
   emacs_value CsoundCreate = env->make_function (env, 0,0, csndCreate, "Creates an instance of Csound.", NULL);
   emacs_value CsoundDestroy = env->make_function (env, 1,1, csndDestroy, "Destroys an instance of Csound.", NULL);
@@ -634,8 +635,10 @@ int emacs_module_init (struct emacs_runtime *ert)
   bind_function (env, "csoundGetScoreOffsetSeconds", CsoundGetScoreOffsetSeconds);
   bind_function (env, "csoundSetScoreOffsetSeconds", CsoundSetScoreOffsetSeconds);
   bind_function (env, "csoundRewindScore", CsoundRewindScore);
+
   
   provide (env, "csnd");
+  
 
   return 0;
 }

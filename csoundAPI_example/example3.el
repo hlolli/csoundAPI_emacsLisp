@@ -1,4 +1,4 @@
-;; Example 3 - Simple Compilation with Csound
+;; Example 3 - Using our own performance loop
 ;; Example author: Steven Yi <stevenyi@gmail.com>
 ;; For Elisp: Hlödver Sigurdsson <hlolli@gmail.com>
 ;; 2017.01.08
@@ -6,8 +6,9 @@
 ;; First thing is to load the csoundAPI module
 (module-load "./csnd.so")
 
-;; This line initializes Csound turns off Csound's atexit handler
-(csoundInitialize CSOUNDINIT_NO_ATEXIT)
+;; This line initializes Csound and turns off Csound's atexit handler as well as signal handlers
+(csoundInitialize (logior CSOUNDINIT_NO_ATEXIT
+			  CSOUNDINIT_NO_SIGNAL_HANDLER))
 
 ;; Defining our Csound ORC code within a multline String
 (defconst orc "

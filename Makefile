@@ -1,6 +1,6 @@
 # path to the emacs source dir
 
-CSOUNDINCLUDES = /home/hlolli/csound/csound/include
+CSOUND = /home/hlolli/csound/csound/include/
 ROOT    = /usr/local/share/emacs/25.1/src
 CC      = gcc
 LD      = gcc
@@ -16,4 +16,4 @@ all: csnd.so
 
 # compile source file to object file
 %.o: %.c
-	$(CC) $(CFLAGS) -I$(CSOUNDINCLUDES) -I$(ROOT) -I. -fPIC -c $<
+	$(CC) $(CFLAGS) -I$(CSOUND) -I$(ROOT) -I. -fPIC -c $<

@@ -120,30 +120,6 @@ https://csound.github.io/docs/api/group__SCOREHANDLING.html
 | csoundScoreSort | missing | |  |
 | csoundScoreExtract | missing | | |
 
-## Threading and concurrency
-https://csound.github.io/docs/api/group__THREADING.html
-
-| API function      | Status        | Parameters |  Comment |
-| ----------------- |:-------------:|:---------- |:-------- |
-| csoundSetYieldCallback | | | |
-| csoundCreateThread | | | |
-| csoundGetCurrentThreadId | | | |
-| csoundJoinThread | | | |
-| csoundCreateThreadLock | | | |
-| csoundWaitThreadLock | | | |
-| csoundWaitThreadLockNoTimeout | | | |
-| csoundNotifyThreadLock | | | |
-| csoundDestroyThreadLock | | | |
-| csoundCreateMutex | | | |
-| csoundLockMutex | | | |
-| csoundLockMutexNoWait | | | |
-| csoundUnlockMutex | | | |
-| csoundDestroyMutex | | | |
-| csoundCreateBarrier | | | |
-| csoundDestroyBarrier | | | |
-| csoundWaitBarrier | | | |
-| csoundSleep | | | |
-
 ## Constants
 Defined in csound.h
 
@@ -161,3 +137,5 @@ Defined in csound.h
 | CSOUND_CONTROL_CHANNEL_INT | 1     |
 | CSOUND_CONTROL_CHANNEL_LIN | 2     |
 | CSOUND_CONTROL_CHANNEL_EXP | 3     |
+| CSOUNDINIT_NO_SIGNAL_HANDLER | 1 |
+| CSOUNDINIT_NO_ATEXIT | 2 |
