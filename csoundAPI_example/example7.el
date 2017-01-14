@@ -10,22 +10,32 @@
 (csoundInitialize (logior CSOUNDINIT_NO_ATEXIT
 			  CSOUNDINIT_NO_SIGNAL_HANDLER))
 
+(defun initialize-state ()
+  (let ((h (make-hash-table)))
+    (puthash :curval 0.0 h)
+    (puthash :increment 0 h)
+    (puthash :end 0 h)
+    (puthash :dur 0 h)
+    h))
+
 (defun reset-line (state)
   "Calculates new target value, duration and increment"
-  (puthash :dur (ceiling (+ 256 (random 256))) state)
-  (puthash :end (float (random 22100)) state)
+  (puthash :dur (1+ (random 256)) state)
+  (puthash :end (/ (random 1000)
+		   1000.0) state)
   (puthash :increment (/ (- (gethash :end state) (or (gethash :curval state) 0.0))
 			 (gethash :dur state)) state))
+
 
 (defun random-line (base range state)
   "Returns a function that will vary in time with the given base
   value and range"
-  (lambda ()
+  (progn
     (puthash :dur (1- (gethash :dur state)) state)
-    (when (<= (gethash :dur state) 0)
+    (when (<= (gethash :dur state) 0) 
       (reset-line state))
     (let ((c (gethash :curval state)))
-      (puthash :curval (+ c (gethash :increment state)))
+      (puthash :curval (+ c (gethash :increment state)) state)
       (+ base (* range c)))))
 
 
@@ -46,17 +56,18 @@ endin")
 
 (setq sco "i1 0 60")
 
-
 (let* ((c (csoundCreate))
-       (amp-state (make-hash-table))
-       (amp (random-line 0.4 0.2 amp-state))
-       (freq-state (make-hash-table))
-       (freq (random-line 400.0 80.0 freq-state)))
+       (amp-state (initialize-state))       
+       (freq-state (initialize-state))
+       (ampfn (lambda ()
+		(random-line 0.4 0.2 amp-state)))
+       (freqfn (lambda ()
+		 (random-line 400.0 80.0 freq-state))))
   (csoundSetOption c "-odac")
   (csoundCompileOrc c orc)
   (csoundReadScore c sco)
   (csoundStart c)
   (while (eq 0 (csoundPerformKsmps c))
-    (csoundSetControlChannel c "amp" (funcall amp))
-    (csoundSetControlChannel c "freq" (funcall freq)))
+    (csoundSetControlChannel c "amp" (funcall ampfn))
+    (csoundSetControlChannel c "freq" (funcall freqfn)))
   (csoundStop c))
