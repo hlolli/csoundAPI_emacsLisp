@@ -4,7 +4,7 @@
 ;; 2017.01.11
 
 ;; First thing is to load the csoundAPI module
-(module-load "csnd.so")
+(module-load "emacscsnd.so")
 
 ;; This line initializes Csound and turns off Csound's atexit handler as well as signal handlers
 (csoundInitialize (logior CSOUNDINIT_NO_ATEXIT
@@ -59,10 +59,8 @@ endin")
 (let* ((c (csoundCreate))
        (amp-state (initialize-state))       
        (freq-state (initialize-state))
-       (ampfn (lambda ()
-		(random-line 0.4 0.2 amp-state)))
-       (freqfn (lambda ()
-		 (random-line 400.0 80.0 freq-state))))
+       (ampfn (lambda () (random-line 0.4 0.2 amp-state)))
+       (freqfn (lambda () (random-line 400.0 80.0 freq-state))))
   (csoundSetOption c "-odac")
   (csoundCompileOrc c orc)
   (csoundReadScore c sco)

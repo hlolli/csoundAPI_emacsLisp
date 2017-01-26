@@ -78,7 +78,7 @@ https://csound.github.io/docs/api/group__CONTROLEVENTS.html
 
 | API function      | Status        | Parameters |  Comment |
 | ----------------- |:-------------:|:---------- |:-------- |
-| csoundGetChannelPtr | available | csnd,chn,str(name),int(type)||
+| csoundGetChannelPtr | available | csnd,chn,str(name),int(type)|MYFLT unimplemented|
 | csoundListChannels | missing | | |
 | csoundDeleteChannelList | missing | | |
 | csoundSetControlChannelHints | missing | | |

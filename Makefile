@@ -8,12 +8,17 @@ CFLAGS  = -ggdb3 -Wall
 LDFLAGS = -lcsound64
 
 
-all: csnd.so
-
-# make shared library out of the object file
+all: emacscsnd.so
 %.so: %.o
 	$(LD) -shared $(LDFLAGS) -o $@ $<
-
-# compile source file to object file
 %.o: %.c
 	$(CC) $(CFLAGS) -I$(CSOUND) -I$(ROOT) -I. -fPIC -c $<
+
+install: emacscsnd.so
+	cp emacscsnd.so /usr/lib64/
+
+uninstall:
+	rm /usr/lib64/emacscsnd.so
+
+clean:
+	rm emacscsnd.so

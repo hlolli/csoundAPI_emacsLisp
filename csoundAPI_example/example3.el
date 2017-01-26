@@ -4,14 +4,14 @@
 ;; 2017.01.08
 
 ;; First thing is to load the csoundAPI module
-(module-load "./csnd.so")
+(module-load "emacscsnd.so")
 
 ;; This line initializes Csound and turns off Csound's atexit handler as well as signal handlers
 (csoundInitialize (logior CSOUNDINIT_NO_ATEXIT
 			  CSOUNDINIT_NO_SIGNAL_HANDLER))
 
 ;; Defining our Csound ORC code within a multline String
-(defconst orc "
+(setq orc "
 sr=44100
 ksmps=32
 nchnls=2
@@ -22,7 +22,7 @@ outs aout, aout
 endin")
 
 ;; Defining our Csound SCO code
-(defconst sco "i1 0 1")
+(setq sco "i1 0 1")
 
 (let ((c (csoundCreate)))
   (csoundSetOption c "-odac")

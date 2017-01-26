@@ -5,7 +5,7 @@
 
 
 ;; First thing is to load the csoundAPI module
-(module-load "csnd.so")
+(module-load "emacscsnd.so")
 
 ;; This line initializes Csound and turns off Csound's atexit handler as well as signal handlers
 (csoundInitialize (logior CSOUNDINIT_NO_ATEXIT

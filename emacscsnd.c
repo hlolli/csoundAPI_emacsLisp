@@ -440,6 +440,43 @@ static emacs_value csndRewindScore (emacs_env *env, ptrdiff_t nargs, emacs_value
   return 0;
 }
 
+/* static emacs_value csndMYFLTArray (emacs_env *env, ptrdiff_t nargs, emacs_value args[], void *data) */
+/* { */
+/*   /\* CSOUND *csound = env->get_user_ptr (env, args[0]); *\/ */
+/*   int array_length = env->extract_integer (env, args[0]); */
+/*   /\* code from: cs_glue.cpp#L487 *\/ */
+/*   MYFLT* p =  0; */
+/*   void*  pp =  0; */
+/*   if (array_length > 0) */
+/*     pp = (void*) malloc((size_t) array_length * sizeof(MYFLT)); */
+/*   if (pp) { */
+/*     p = (MYFLT*) pp; */
+/*     for (int i = 0; i < array_length; i++) */
+/*       p[i] = (MYFLT) 0; */
+/*   }  */
+/*   return env->make_user_ptr (env, null_finalizer, p); */
+/* } */
+
+/* static emacs_value csndMYFLTSetValue (emacs_env *env, ptrdiff_t nargs, emacs_value args[], void *data) */
+/* { */
+/*   MYFLT *array = env->get_user_ptr (env, args[0]); */
+/*   int index = env->extract_integer (env, args[1]); */
+/*   float value = env->extract_float(env, args[2]); */
+/*   array[index] = value; */
+/*   printf("array: %f\n", array[0]); */
+/*   return 0; */
+/* } */
+
+/* static emacs_value csndMYFLTGetValue (emacs_env *env, ptrdiff_t nargs, emacs_value args[], void *data) */
+/* { */
+/*   MYFLT *array = env->get_user_ptr (env, args[0]); */
+/*   int index = env->extract_integer (env, args[1]); */
+/*   return env->make_float(env, array[index]); */
+/* } */
+
+
+
+
 
 static void bind_function (emacs_env *env, const char *name, emacs_value Sfun)
 {
@@ -636,7 +673,15 @@ int emacs_module_init (struct emacs_runtime *ert)
   bind_function (env, "csoundSetScoreOffsetSeconds", CsoundSetScoreOffsetSeconds);
   bind_function (env, "csoundRewindScore", CsoundRewindScore);
 
+  /* Other */
+  /* emacs_value CsoundMYFLTArray = env->make_function (env, 1, 1, csndMYFLTArray, "Creates MYFLT array of a given size.", NULL); */
+  /* emacs_value CsoundMYFLTSetValue = env->make_function (env, 3, 3, csndMYFLTSetValue, "Given MYFLT array, set a float value on given index.", NULL); */
+  /* emacs_value CsoundMYFLTGetValue = env->make_function (env, 2, 2, csndMYFLTGetValue, "Return the value of MYFLT array on a given index.", NULL); */
   
+  /* bind_function (env, "csoundMYFLTArray", CsoundMYFLTArray); */
+  /* bind_function (env, "csoundMYFLTSetValue", CsoundMYFLTSetValue); */
+  /* bind_function (env, "csoundMYFLTGetValue", CsoundMYFLTGetValue); */
+
   provide (env, "csnd");
   
 

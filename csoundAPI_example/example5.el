@@ -5,14 +5,14 @@
 
 
 ;; First thing is to load the csoundAPI module
-(module-load "csnd.so")
+(module-load "emacscsnd.so")
 
 ;; This line initializes Csound and turns off Csound's atexit handler as well as signal handlers
 (csoundInitialize (logior CSOUNDINIT_NO_ATEXIT
 			  CSOUNDINIT_NO_SIGNAL_HANDLER))
 
 ;; Defining our Csound ORC code within a multline String
-(defconst orc "
+(setq orc "
 sr=44100
 ksmps=32
 nchnls=2
@@ -26,14 +26,14 @@ outs aout, aout
 endin")
 
 ;; Example1 static score
-(defconst sco1 "i1 0 1 0.5 8.00")
+(setq sco1 "i1 0 1 0.5 8.00")
 
 
 ;; Example 2 - Generating Score string using a map with range sequence
-(defconst sco2
-  (-> (mapcar (lambda (n) (format "i1 %g .25 0.5 8.%02d" (* n 0.25) n))
-	      (number-sequence 0 13))
-      (string-join "\n")))
+(setq sco2
+      (-> (mapcar (lambda (n) (format "i1 %g .25 0.5 8.%02d" (* n 0.25) n))
+		  (number-sequence 0 13))
+	  (string-join "\n")))
 
 ;; Example 3 - Generating Score using intermediate data structure (list of lists),
 ;; then converting to String.
@@ -44,7 +44,7 @@ endin")
 		   (number-sequence 0 13))
 	   (mapcar (lambda (l) (apply 'format "i %i %f %f %f %s" l)))))
 
-(defconst sco3 (string-join notes "\n"))
+(setq sco3 (string-join notes "\n"))
 
 
 (let ((c (csoundCreate)))
