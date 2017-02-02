@@ -120,6 +120,21 @@ https://csound.github.io/docs/api/group__SCOREHANDLING.html
 | csoundScoreSort | missing | |  |
 | csoundScoreExtract | missing | | |
 
+## Messages and Text
+https://csound.github.io/docs/api/group__MESSAGES.html
+
+| API function      | Status        | Parameters |  Comment |
+| ----------------- |:-------------:|:---------- |:-------- |
+|csoundCreateMessageBuffer | available | csnd,int(std_out) | |
+|csoundDestroyMessageBuffer | available | csnd | |
+|csoundGetFirstMessage | available | csnd | |
+|csoundGetFirstMessageAttr | available | csnd | |
+|csoundGetMessageCnt | available | csnd | |
+|csoundSetMessageLevel | available | csnd, int(level) | |
+|csoundGetMessageLevel | available | csnd | |
+|csoundPopFirstMessage | available | csnd | |
+
+
 ## Constants
 Defined in csound.h
 

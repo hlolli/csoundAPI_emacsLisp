@@ -440,6 +440,77 @@ static emacs_value csndRewindScore (emacs_env *env, ptrdiff_t nargs, emacs_value
   return 0;
 }
 
+
+/* Message buffer */
+
+static emacs_value csndCreateMessageBuffer (emacs_env *env, ptrdiff_t nargs, emacs_value args[], void *data)
+{
+  CSOUND *csound = env->get_user_ptr (env, args[0]);
+  int to_std_out = env->extract_integer (env, args[1]);
+  csoundCreateMessageBuffer(csound, to_std_out);
+  return 0;
+}
+
+static emacs_value csndDestroyMessageBuffer (emacs_env *env, ptrdiff_t nargs, emacs_value args[], void *data)
+{
+  CSOUND *csound = env->get_user_ptr (env, args[0]);
+  csoundDestroyMessageBuffer(csound);
+  return 0;
+}
+
+static emacs_value csndGetFirstMessage (emacs_env *env, ptrdiff_t nargs, emacs_value args[], void *data)
+{
+  CSOUND *csound = env->get_user_ptr (env, args[0]);
+  const char* first_message = csoundGetFirstMessage(csound);
+  printf("first message %s \n", first_message);
+  if (first_message == NULL)
+    {
+      return env->make_integer(env, -1);
+	}
+  else {
+    return env->make_string(env,first_message, strlen(first_message));
+  }
+}
+
+static emacs_value csndGetFirstMessageAttr (emacs_env *env, ptrdiff_t nargs, emacs_value args[], void *data)
+{
+  CSOUND *csound = env->get_user_ptr (env, args[0]);
+  int attribute_parameter = csoundGetFirstMessageAttr(csound);
+  return env->make_integer(env, attribute_parameter);
+}
+
+static emacs_value csndGetMessageCnt (emacs_env *env, ptrdiff_t nargs, emacs_value args[], void *data)
+{
+  CSOUND *csound = env->get_user_ptr (env, args[0]);
+  int message_count = csoundGetMessageCnt(csound);
+  return env->make_integer(env, message_count);
+}
+
+static emacs_value csndSetMessageLevel (emacs_env *env, ptrdiff_t nargs, emacs_value args[], void *data)
+{
+  CSOUND *csound = env->get_user_ptr (env, args[0]);
+  int message_level = env->extract_integer (env, args[1]);
+  csoundSetMessageLevel(csound, message_level);
+  return 0;
+}
+
+
+static emacs_value csndGetMessageLevel (emacs_env *env, ptrdiff_t nargs, emacs_value args[], void *data)
+{
+  CSOUND *csound = env->get_user_ptr (env, args[0]);
+  int message_level = csoundGetMessageLevel(csound);
+  return env->make_integer(env, message_level);
+}
+
+static emacs_value csndPopFirstMessage (emacs_env *env, ptrdiff_t nargs, emacs_value args[], void *data)
+{
+  CSOUND *csound = env->get_user_ptr (env, args[0]); 
+  csoundPopFirstMessage(csound);
+  return 0;
+}
+
+
+
 /* static emacs_value csndMYFLTArray (emacs_env *env, ptrdiff_t nargs, emacs_value args[], void *data) */
 /* { */
 /*   /\* CSOUND *csound = env->get_user_ptr (env, args[0]); *\/ */
@@ -520,16 +591,6 @@ static void provide (emacs_env *env, const char *feature)
 int emacs_module_init (struct emacs_runtime *ert)
 {
   emacs_env *env = ert->get_environment (ert);
-
-  /* create a lambda (returns an emacs_value) */
-  /* emacs_value fun = env->make_function (env, */
-  /* 					0,            /\* min. number of arguments *\/ */
-  /* 					0,    /\* max. number of arguments *\/ */
-  /* 					csndCreate,  */
-  /* 					/\* Fmymod_test,  /\\* actual function pointer *\\/ *\/ */
-  /* 					"add docstring",        /\* docstring *\/ */
-  /* 					NULL          /\* user pointer of your choice (data param in Fmymod_test) *\/ */
-  /* 					); */
 
   /* CONSTANTS */
   bind_constant(env, "CSOUND_CONTROL_CHANNEL", 1);
@@ -673,6 +734,26 @@ int emacs_module_init (struct emacs_runtime *ert)
   bind_function (env, "csoundSetScoreOffsetSeconds", CsoundSetScoreOffsetSeconds);
   bind_function (env, "csoundRewindScore", CsoundRewindScore);
 
+  /* Message buffer */
+  emacs_value CsoundCreateMessageBuffer = env->make_function (env, 2, 2, csndCreateMessageBuffer, "Creates a buffer for storing messages printed by Csound.", NULL);
+  emacs_value CsoundDestroyMessageBuffer = env->make_function (env, 1, 1, csndDestroyMessageBuffer, "Releases all memory used by the message buffer.", NULL);
+  emacs_value CsoundGetFirstMessage = env->make_function (env, 1, 1, csndGetFirstMessage, "Returns the first message from the buffer.", NULL);
+  emacs_value CsoundGetFirstMessageAttr = env->make_function (env, 1, 1, csndGetFirstMessageAttr, "Returns the attribute parameter (see msg_attr.h) of the first message in the buffer.", NULL);
+  emacs_value CsoundGetMessageCnt = env->make_function (env, 1, 1, csndGetMessageCnt, "Returns the number of pending messages in the buffer.", NULL);
+  emacs_value CsoundSetMessageLevel = env->make_function (env, 2, 2, csndSetMessageLevel, "Sets the Csound message level (from 0 to 231).", NULL);
+  emacs_value CsoundGetMessageLevel = env->make_function (env, 1, 1, csndGetMessageLevel, "Returns the Csound message level (from 0 to 231).", NULL);
+  emacs_value CsoundPopFirstMessage = env->make_function (env, 1, 1, csndPopFirstMessage, "Removes the first message from the buffer.", NULL);
+  
+  bind_function (env, "csoundCreateMessageBuffer", CsoundCreateMessageBuffer);
+  bind_function (env, "csoundDestroyMessageBuffer", CsoundDestroyMessageBuffer);
+  bind_function (env, "csoundGetFirstMessage", CsoundGetFirstMessage);
+  bind_function (env, "csoundGetFirstMessageAttr", CsoundGetFirstMessageAttr);
+  bind_function (env, "csoundGetMessageCnt", CsoundGetMessageCnt);
+  bind_function (env, "csoundSetMessageLevel", CsoundSetMessageLevel);
+  bind_function (env, "csoundGetMessageLevel", CsoundGetMessageLevel);
+  bind_function (env, "csoundPopFirstMessage", CsoundPopFirstMessage);
+  
+  
   /* Other */
   /* emacs_value CsoundMYFLTArray = env->make_function (env, 1, 1, csndMYFLTArray, "Creates MYFLT array of a given size.", NULL); */
   /* emacs_value CsoundMYFLTSetValue = env->make_function (env, 3, 3, csndMYFLTSetValue, "Given MYFLT array, set a float value on given index.", NULL); */
