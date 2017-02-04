@@ -121,7 +121,7 @@ static emacs_value csndEvalCode (emacs_env *env, ptrdiff_t nargs, emacs_value ar
 {
   CSOUND *csound = env->get_user_ptr (env, args[0]);
   const char* code_snippet = copy_string(env,args[1]);
-  printf("code snippet: %s \n", code_snippet);
+  /* printf("code snippet: %s \n", code_snippet); */
   MYFLT result = csoundEvalCode(csound, code_snippet);
   return env->make_integer(env,result);
 }
@@ -462,7 +462,7 @@ static emacs_value csndGetFirstMessage (emacs_env *env, ptrdiff_t nargs, emacs_v
 {
   CSOUND *csound = env->get_user_ptr (env, args[0]);
   const char* first_message = csoundGetFirstMessage(csound);
-  printf("first message %s \n", first_message);
+  /* printf("first message %s \n", first_message); */
   if (first_message == NULL)
     {
       return env->make_integer(env, -1);
@@ -509,6 +509,44 @@ static emacs_value csndPopFirstMessage (emacs_env *env, ptrdiff_t nargs, emacs_v
   return 0;
 }
 
+uintptr_t performance_function(void* data) {
+  CSOUND* csound = (CSOUND*) data;
+  while (csoundPerformKsmps(csound) == 0) {
+  }
+  return 0;
+}
+
+static emacs_value csndAsyncPerform (emacs_env *env, ptrdiff_t nargs, emacs_value args[], void *data)
+{
+  CSOUND *csound = env->get_user_ptr (env, args[0]);
+  void* thread;
+  thread = csoundCreateThread(&performance_function, (void*)csound); 
+  return 0;
+  csoundJoinThread(thread);
+}
+
+
+void csoundMessageCall(CSOUND* csound, int attr, const char* format, va_list valist);
+
+static char* tty_output_writer_name = "";
+
+static emacs_value csndMessageTty (emacs_env *env, ptrdiff_t nargs, emacs_value args[], void *data)
+{
+  CSOUND *csound = env->get_user_ptr (env, args[0]);
+  tty_output_writer_name = copy_string(env,args[1]);
+  /* CSOUND *csound = env->get_user_ptr (env, args[0]); */
+  csoundSetMessageCallback(csound, csoundMessageCall); 
+  return 0;
+}
+
+void csoundMessageCall(CSOUND* csound, int attr, const char* format, va_list valist)
+{  
+  /* int fd = open("/dev/pts/0", O_WRONLY); */
+  int fd = open(tty_output_writer_name, O_WRONLY);
+  char buffer [1024];
+  int strout = vsnprintf(buffer,1024,format,valist);
+  write(fd, buffer, strout);
+}
 
 
 /* static emacs_value csndMYFLTArray (emacs_env *env, ptrdiff_t nargs, emacs_value args[], void *data) */
@@ -752,7 +790,13 @@ int emacs_module_init (struct emacs_runtime *ert)
   bind_function (env, "csoundSetMessageLevel", CsoundSetMessageLevel);
   bind_function (env, "csoundGetMessageLevel", CsoundGetMessageLevel);
   bind_function (env, "csoundPopFirstMessage", CsoundPopFirstMessage);
+
+  /* Other */
+  emacs_value CsoundAsyncPerform = env->make_function (env, 1, 1, csndAsyncPerform, "Same as csoundPerform but with on a seperate thread.", NULL);
+  emacs_value CsoundMessageTty = env->make_function (env, 2, 2, csndMessageTty, "Print to TTY device instead of std_out.", NULL);
   
+  bind_function (env, "csoundAsyncPerform", CsoundAsyncPerform);
+  bind_function (env, "csoundMessageTty", CsoundMessageTty);
   
   /* Other */
   /* emacs_value CsoundMYFLTArray = env->make_function (env, 1, 1, csndMYFLTArray, "Creates MYFLT array of a given size.", NULL); */
