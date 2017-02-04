@@ -121,8 +121,8 @@ static emacs_value csndEvalCode (emacs_env *env, ptrdiff_t nargs, emacs_value ar
 {
   CSOUND *csound = env->get_user_ptr (env, args[0]);
   const char* code_snippet = copy_string(env,args[1]);
-  /* printf("code snippet: %s \n", code_snippet); */
-  MYFLT result = csoundEvalCode(csound, code_snippet);
+   printf("code snippet: %s \n", code_snippet);
+   MYFLT result = csoundEvalCode(csound, code_snippet);
   return env->make_integer(env,result);
 }
 
