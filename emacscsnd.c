@@ -8,6 +8,8 @@ int plugin_is_GPL_compatible;
 
 static void null_finalizer (void *ptr) {}
 
+int threadStop = 1;
+
 static char* copy_string (emacs_env *env, emacs_value str)
 {
   ptrdiff_t length = 0;
@@ -67,8 +69,8 @@ static emacs_value csndInitialize (emacs_env *env, ptrdiff_t nargs, emacs_value 
 static emacs_value csndCleanup (emacs_env *env, ptrdiff_t nargs, emacs_value args[], void *data)
 {
   CSOUND *csound = env->get_user_ptr (env, args[0]);
-  int result = csoundCleanup(csound);
-  return env->make_integer(env,result);
+  csoundCleanup(csound);
+  return 0;
 }
 
 static emacs_value csndCompile (emacs_env *env, ptrdiff_t nargs, emacs_value args[], void *data)
@@ -178,6 +180,7 @@ static emacs_value csndStop (emacs_env *env, ptrdiff_t nargs, emacs_value args[]
 {
   CSOUND *csound = env->get_user_ptr (env, args[0]);
   csoundStop(csound);
+  threadStop = 1;
   return 0;
 }
 
@@ -511,7 +514,7 @@ static emacs_value csndPopFirstMessage (emacs_env *env, ptrdiff_t nargs, emacs_v
 
 uintptr_t performance_function(void* data) {
   CSOUND* csound = (CSOUND*) data;
-  while (csoundPerformKsmps(csound) == 0) {
+  while (threadStop == 0 && csoundPerformKsmps(csound) == 0) {
   }
   return 0;
 }
@@ -520,11 +523,11 @@ static emacs_value csndAsyncPerform (emacs_env *env, ptrdiff_t nargs, emacs_valu
 {
   CSOUND *csound = env->get_user_ptr (env, args[0]);
   void* thread;
+  threadStop = 0;
   thread = csoundCreateThread(&performance_function, (void*)csound); 
   return 0;
   csoundJoinThread(thread);
 }
-
 
 void csoundMessageCall(CSOUND* csound, int attr, const char* format, va_list valist);
 
