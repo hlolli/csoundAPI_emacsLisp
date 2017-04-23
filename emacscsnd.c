@@ -173,6 +173,12 @@ static emacs_value csndStart (emacs_env *env, ptrdiff_t nargs, emacs_value args[
 {
   CSOUND *csound = env->get_user_ptr (env, args[0]);
   int result = csoundStart(csound);
+  if (result == -1) {
+    csoundDestroy(csound);
+    /* When csound failes to start,
+       and Perform is called, will cause
+       emacs crash, therefore we destroy. */
+  }
   return env->make_integer(env,result);
 }
 
@@ -514,8 +520,8 @@ static emacs_value csndPopFirstMessage (emacs_env *env, ptrdiff_t nargs, emacs_v
 
 uintptr_t performance_function(void* data) {
   CSOUND* csound = (CSOUND*) data;
-  while (threadStop == 0 && csoundPerformKsmps(csound) == 0) {
-  }
+  while (threadStop == 0 && csoundPerformKsmps(csound) == 0) {}
+  /* while (csoundPerformKsmps(csound) == 0) {} */
   return 0;
 }
 
