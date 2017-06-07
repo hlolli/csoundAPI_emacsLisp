@@ -538,62 +538,40 @@ static emacs_value csndAsyncPerform (emacs_env *env, ptrdiff_t nargs, emacs_valu
 void csoundMessageCall(CSOUND* csound, int attr, const char* format, va_list valist);
 
 static char* tty_output_writer_name = "";
+/* static emacs_env* emacs_env_hack; */
 
 static emacs_value csndMessageTty (emacs_env *env, ptrdiff_t nargs, emacs_value args[], void *data)
 {
   CSOUND *csound = env->get_user_ptr (env, args[0]);
+  /* emacs_env_hack = env; */
   tty_output_writer_name = copy_string(env,args[1]);
   /* CSOUND *csound = env->get_user_ptr (env, args[0]); */
   csoundSetMessageCallback(csound, csoundMessageCall); 
   return 0;
 }
 
+/* specifically for csound-mode 
+   static void comintCallback (emacs_env *env, char* proc, int msglen, char* str)
+   {
+   emacs_value Qcomint = env->intern (env, "comnit-output-filter");
+   emacs_value Qstring = env->make_string(env, str, msglen);
+   emacs_value Qproc   = env->make_string(env, proc, strlen(proc));
+   emacs_value args[] = { Qproc, Qstring};
+   env->funcall (env, Qcomint, 2, args);
+   } */
+
 void csoundMessageCall(CSOUND* csound, int attr, const char* format, va_list valist)
 {  
   /* int fd = open("/dev/pts/0", O_WRONLY); */
   int fd = open(tty_output_writer_name, O_WRONLY);
-  char buffer [1024];
-  int strout = vsnprintf(buffer,1024,format,valist);
-  write(fd, buffer, strout);
+  char buffer [1024]; 
+  int msglen = vsnprintf(buffer,1024,format,valist);
+  /* char* fn_name = "comnit-output-filter"; */
+  /* char* ps_name = "csnd"; */
+  /* comintCallback(emacs_env_hack, ps_name, msglen, buffer); */
+  write(fd, buffer, msglen);
+  close(fd);
 }
-
-
-/* static emacs_value csndMYFLTArray (emacs_env *env, ptrdiff_t nargs, emacs_value args[], void *data) */
-/* { */
-/*   /\* CSOUND *csound = env->get_user_ptr (env, args[0]); *\/ */
-/*   int array_length = env->extract_integer (env, args[0]); */
-/*   /\* code from: cs_glue.cpp#L487 *\/ */
-/*   MYFLT* p =  0; */
-/*   void*  pp =  0; */
-/*   if (array_length > 0) */
-/*     pp = (void*) malloc((size_t) array_length * sizeof(MYFLT)); */
-/*   if (pp) { */
-/*     p = (MYFLT*) pp; */
-/*     for (int i = 0; i < array_length; i++) */
-/*       p[i] = (MYFLT) 0; */
-/*   }  */
-/*   return env->make_user_ptr (env, null_finalizer, p); */
-/* } */
-
-/* static emacs_value csndMYFLTSetValue (emacs_env *env, ptrdiff_t nargs, emacs_value args[], void *data) */
-/* { */
-/*   MYFLT *array = env->get_user_ptr (env, args[0]); */
-/*   int index = env->extract_integer (env, args[1]); */
-/*   float value = env->extract_float(env, args[2]); */
-/*   array[index] = value; */
-/*   printf("array: %f\n", array[0]); */
-/*   return 0; */
-/* } */
-
-/* static emacs_value csndMYFLTGetValue (emacs_env *env, ptrdiff_t nargs, emacs_value args[], void *data) */
-/* { */
-/*   MYFLT *array = env->get_user_ptr (env, args[0]); */
-/*   int index = env->extract_integer (env, args[1]); */
-/*   return env->make_float(env, array[index]); */
-/* } */
-
-
-
 
 
 static void bind_function (emacs_env *env, const char *name, emacs_value Sfun)
