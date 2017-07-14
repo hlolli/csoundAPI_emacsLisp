@@ -543,29 +543,27 @@ static char* tty_output_writer_name = "";
 static emacs_value csndMessageTty (emacs_env *env, ptrdiff_t nargs, emacs_value args[], void *data)
 {
   CSOUND *csound = env->get_user_ptr (env, args[0]);
+  /* strcpy(tty_output_writer_name, ""); */
   /* emacs_env_hack = env; */
+
   tty_output_writer_name = copy_string(env,args[1]);
-  /* CSOUND *csound = env->get_user_ptr (env, args[0]); */
   csoundSetMessageCallback(csound, csoundMessageCall); 
+
   return 0;
 }
-
-/* specifically for csound-mode 
-   static void comintCallback (emacs_env *env, char* proc, int msglen, char* str)
-   {
-   emacs_value Qcomint = env->intern (env, "comnit-output-filter");
-   emacs_value Qstring = env->make_string(env, str, msglen);
-   emacs_value Qproc   = env->make_string(env, proc, strlen(proc));
-   emacs_value args[] = { Qproc, Qstring};
-   env->funcall (env, Qcomint, 2, args);
-   } */
 
 void csoundMessageCall(CSOUND* csound, int attr, const char* format, va_list valist)
 {  
   /* int fd = open("/dev/pts/0", O_WRONLY); */
   int fd = open(tty_output_writer_name, O_WRONLY);
-  char buffer [1024]; 
-  int msglen = vsnprintf(buffer,1024,format,valist);
+  
+  char buffer [1024];
+  int msglen;
+  if( buffer[0] == '\0' )
+    {
+      memset(buffer, 0, sizeof buffer);
+    }
+  msglen = vsnprintf(buffer,1024,format,valist);
   /* char* fn_name = "comnit-output-filter"; */
   /* char* ps_name = "csnd"; */
   /* comintCallback(emacs_env_hack, ps_name, msglen, buffer); */
