@@ -572,6 +572,27 @@ void csoundMessageCall(CSOUND* csound, int attr, const char* format, va_list val
 }
 
 
+/* Csound Tables */
+
+static emacs_value csndTableLength (emacs_env *env, ptrdiff_t nargs, emacs_value args[], void *data)
+{
+  CSOUND *csound = env->get_user_ptr (env, args[0]);
+  int table_number = env->extract_integer (env, args[1]);
+  int table_length = csoundTableLength(csound, table_number);
+  return env->make_integer(env, table_length);
+}
+
+
+static emacs_value csndTableGet (emacs_env *env, ptrdiff_t nargs, emacs_value args[], void *data)
+{
+  CSOUND *csound = env->get_user_ptr (env, args[0]);
+  int table_number = env->extract_integer (env, args[1]);
+  int table_index = env->extract_integer (env, args[2]);
+  MYFLT table_value_at_index = csoundTableGet(csound, table_number, table_index);
+  return env->make_float(env, table_value_at_index);
+}
+
+
 static void bind_function (emacs_env *env, const char *name, emacs_value Sfun)
 {
   /* Set the function cell of the symbol named NAME to SFUN using
@@ -778,10 +799,14 @@ int emacs_module_init (struct emacs_runtime *ert)
 
   /* Other */
   emacs_value CsoundAsyncPerform = env->make_function (env, 1, 1, csndAsyncPerform, "Same as csoundPerform but with on a seperate thread.", NULL);
-  emacs_value CsoundMessageTty = env->make_function (env, 2, 2, csndMessageTty, "Print to TTY device instead of std_out.", NULL);
-  
+  emacs_value CsoundMessageTty = env->make_function (env, 2, 2, csndMessageTty, "Print to TTY device instead of std_out.", NULL); 
+  emacs_value CsoundTableLength = env->make_function (env, 2, 2, csndTableLength, "Returns the length of given table.", NULL);
+  emacs_value CsoundTableGet = env->make_function (env, 3, 3, csndTableGet, "Returns the table value of given index.", NULL);
+
   bind_function (env, "csoundAsyncPerform", CsoundAsyncPerform);
   bind_function (env, "csoundMessageTty", CsoundMessageTty);
+  bind_function (env, "csoundTableLength", CsoundTableLength);
+  bind_function (env, "csoundTableGet", CsoundTableGet);
   
   /* Other */
   /* emacs_value CsoundMYFLTArray = env->make_function (env, 1, 1, csndMYFLTArray, "Creates MYFLT array of a given size.", NULL); */
